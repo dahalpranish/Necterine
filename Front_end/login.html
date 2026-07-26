@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ledger — Sign in</title>
+<style>
+  :root{
+    --bg: #0a0e14;
+    --card: #131820;
+    --card-border: #232a36;
+    --text: #eef1f6;
+    --muted: #8891a3;
+    --green: #34c759;
+    --green-dark: #24913f;
+    --danger: #ff5c5c;
+    --input-bg: #1a2029;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    height: 100%;
+    margin: 0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  /* ---------- MOUNTAIN BACKGROUND ---------- */
+  .scene{
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    background: linear-gradient(180deg, #050709 0%, #0a1410 55%, #0d1a14 100%);
+  }
+
+  .stars{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 60%;
+  }
+  .star{
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #cfe8d6;
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: twinkle 3.5s ease-in-out infinite;
+  }
+  @keyframes twinkle{
+    0%, 100%{ opacity: 0.15; }
+    50%{ opacity: 0.9; }
+  }
+
+  .shooting-star{
+    position: absolute;
+    top: 12%;
+    left: -10%;
+    width: 120px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #eafff0, transparent);
+    transform: rotate(18deg);
+    opacity: 0;
+    animation: shoot 7s ease-in infinite;
+    animation-delay: 2s;
+  }
+  @keyframes shoot{
+    0%{ opacity: 0; transform: translateX(0) translateY(0) rotate(18deg); }
+    5%{ opacity: 1; }
+    18%{ opacity: 0; transform: translateX(60vw) translateY(90px) rotate(18deg); }
+    100%{ opacity: 0; }
+  }
+
+  .mountain-layer{
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: auto;
+    animation: drift 24s ease-in-out infinite;
+  }
+  .mountain-layer.l1{ animation-duration: 34s; }
+  .mountain-layer.l2{ animation-duration: 28s; animation-direction: reverse; }
+  .mountain-layer.l3{ animation-duration: 22s; }
+
+  @keyframes drift{
+    0%, 100%{ transform: translateX(0px); }
+    50%{ transform: translateX(-14px); }
+  }
+
+  .vignette{
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 40%, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 100%);
+  }
+
+  /* ---------- LAYOUT ---------- */
+  .wrap{
+    position: relative;
+    z-index: 2;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .panel{
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(14px);
+    animation: rise 0.7s ease forwards;
+  }
+  @keyframes rise{
+    to{ opacity: 1; transform: translateY(0); }
+  }
+
+  .brand{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .brand-mark{
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: linear-gradient(160deg, var(--green), var(--green-dark));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 24px rgba(52,199,89,0.35);
+  }
+  .brand-mark svg{ width: 16px; height: 16px; }
+  .brand-name{ font-size: 20px; font-weight: 700; letter-spacing: 0.2px; }
+
+  .card{
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    padding: 34px 30px 26px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+  }
+
+  .headline{ font-size: 26px; font-weight: 700; margin: 0 0 6px; }
+  .subline{ color: var(--muted); font-size: 14px; margin: 0 0 26px; }
+
+  .tabs{
+    display: flex;
+    background: var(--input-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 3px;
+    margin-bottom: 26px;
+  }
+  .tab{
+    flex: 1;
+    padding: 8px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: color 0.2s ease, background 0.2s ease;
+  }
+  .tab.active{
+    background: var(--green);
+    color: #06210d;
+  }
+
+  /* ---------- STEP TRACK ---------- */
+  .track{
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+  }
+  .steps{
+    display: flex;
+    transition: transform 0.45s cubic-bezier(0.65,0,0.35,1);
+    width: 300%;
+  }
+  .step{
+    width: 33.333%;
+    flex-shrink: 0;
+    padding: 2px 2px;
+    text-align: left;
+  }
+
+  .field-label{
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .field-wrap{ position: relative; margin-bottom: 6px; }
+  input.field{
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text);
+    font-size: 14px;
+    padding: 13px 14px;
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  input.field:focus{
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(52,199,89,0.15);
+  }
+  input.field::placeholder{ color: #57606f; }
+
+  .locked-chip{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--input-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    margin-bottom: 20px;
+    font-size: 13px;
+  }
+  .locked-chip span.val{ color: var(--muted); }
+  .locked-chip button{
+    background: none;
+    border: none;
+    color: var(--green);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .btn{
+    width: 100%;
+    padding: 13px 0;
+    border-radius: 10px;
+    border: none;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    background: var(--green);
+    color: #06210d;
+    margin-top: 18px;
+    transition: transform 0.15s ease, filter 0.15s ease;
+  }
+  .btn:hover{ filter: brightness(1.08); }
+  .btn:active{ transform: scale(0.98); }
+  .btn:disabled{ opacity: 0.6; cursor: not-allowed; }
+
+  .back-link{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+    margin-bottom: 16px;
+    padding: 0;
+  }
+  .back-link:hover{ color: var(--text); }
+
+  .msg{
+    font-size: 13px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-top: 16px;
+    display: none;
+    animation: shake 0.4s ease;
+  }
+  .msg.error{
+    display: block;
+    background: rgba(255,92,92,0.1);
+    border: 1px solid rgba(255,92,92,0.35);
+    color: var(--danger);
+  }
+  .msg.success{
+    display: block;
+    background: rgba(52,199,89,0.1);
+    border: 1px solid rgba(52,199,89,0.35);
+    color: var(--green);
+  }
+  @keyframes shake{
+    0%, 100%{ transform: translateX(0); }
+    20%{ transform: translateX(-4px); }
+    40%{ transform: translateX(4px); }
+    60%{ transform: translateX(-3px); }
+    80%{ transform: translateX(3px); }
+  }
+
+  .footnote{
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 20px;
+  }
+
+  .spinner{
+    width: 14px; height: 14px;
+    border: 2px solid rgba(6,33,13,0.3);
+    border-top-color: #06210d;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+    vertical-align: -2px;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="scene">
+  <div class="stars" id="stars"></div>
+  <div class="shooting-star"></div>
+  <div class="vignette"></div>
+  <svg class="mountain-layer l1" viewBox="0 0 1440 420" preserveAspectRatio="none" style="opacity:0.35">
+    <path fill="#123a24" d="M0,300 L120,180 L220,260 L340,120 L460,240 L600,90 L760,230 L900,140 L1040,260 L1180,150 L1300,240 L1440,180 L1440,420 L0,420 Z"/>
+  </svg>
+  <svg class="mountain-layer l2" viewBox="0 0 1440 420" preserveAspectRatio="none" style="opacity:0.55">
+    <path fill="#0e2e1c" d="M0,340 L140,220 L260,300 L400,170 L540,280 L680,150 L820,270 L960,190 L1100,300 L1240,210 L1440,300 L1440,420 L0,420 Z"/>
+  </svg>
+  <svg class="mountain-layer l3" viewBox="0 0 1440 420" preserveAspectRatio="none" style="opacity:0.9">
+    <path fill="#081f13" d="M0,380 L100,300 L200,360 L320,270 L440,350 L560,260 L700,360 L820,290 L960,370 L1100,300 L1220,360 L1340,310 L1440,360 L1440,420 L0,420 Z"/>
+  </svg>
+</div>
+
+<div class="wrap">
+  <div class="panel">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 4 L20 18 H4 Z" fill="#06210d"/></svg>
+      </div>
+      <div class="brand-name">Ledger</div>
+    </div>
+
+    <div class="card">
+      <div class="tabs">
+        <button class="tab active" id="tabLogin" onclick="switchMode('login')">Login</button>
+        <button class="tab" id="tabRegister" onclick="switchMode('register')">Sign up</button>
+      </div>
+
+      <h1 class="headline" id="headline">Welcome back</h1>
+      <p class="subline" id="subline">Login to your finance dashboard</p>
+
+      <!-- LOGIN FORM -->
+      <form id="loginForm" class="track">
+        <div class="steps" id="loginSteps">
+          <div class="step">
+            <label class="field-label" for="identifier">Username or email</label>
+            <div class="field-wrap">
+              <input class="field" id="identifier" type="text" placeholder="alex or alex@example.com" autocomplete="username">
+            </div>
+            <button type="button" class="btn" onclick="goLoginStep(1)">Continue</button>
+          </div>
+          <div class="step">
+            <button type="button" class="back-link" onclick="goLoginStep(0)">&larr; Back</button>
+            <div class="locked-chip">
+              <span class="val" id="identifierChip"></span>
+              <button type="button" onclick="goLoginStep(0)">Change</button>
+            </div>
+            <label class="field-label" for="password">Password</label>
+            <div class="field-wrap">
+              <input class="field" id="password" type="password" placeholder="••••••••" autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn" id="loginSubmitBtn">Sign in</button>
+          </div>
+        </div>
+        <div class="msg" id="loginMsg"></div>
+      </form>
+
+      <!-- REGISTER FORM -->
+      <form id="registerForm" style="display:none">
+        <div class="field-wrap">
+          <input class="field" id="regUsername" type="text" placeholder="Username" autocomplete="username">
+        </div>
+
+        <div class="field-wrap">
+          <input class="field" id="regEmail" type="email" placeholder="Email" autocomplete="email">
+        </div>
+
+        <div class="field-wrap">
+          <input class="field" id="regPassword" type="password" placeholder="Password" autocomplete="new-password">
+        </div>
+
+        <button type="submit" class="btn" id="registerSubmitBtn">Create account</button>
+        <div class="msg" id="registerMsg"></div>
+      </form>
+
+      <p class="footnote" id="footnote">Ledger: <b>Best way to finance</b></p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------------- background stars ---------------- */
+const starsEl = document.getElementById('stars');
+for(let i=0;i<45;i++){
+  const s = document.createElement('div');
+  s.className = 'star';
+  s.style.left = Math.random()*100 + '%';
+  s.style.top = Math.random()*100 + '%';
+  s.style.animationDelay = (Math.random()*3.5) + 's';
+  starsEl.appendChild(s);
+}
+
+/* ---------------- mode switch ---------------- */
+const headline = document.getElementById('headline');
+const subline = document.getElementById('subline');
+const footnote = document.getElementById('footnote');
+const loginForm = document.getElementById('loginForm');
+const registerForm = document.getElementById('registerForm');
+const tabLogin = document.getElementById('tabLogin');
+const tabRegister = document.getElementById('tabRegister');
+
+function switchMode(mode){
+  clearMsg('loginMsg');
+  clearMsg('registerMsg');
+  if(mode === 'login'){
+    tabLogin.classList.add('active');
+    tabRegister.classList.remove('active');
+    loginForm.style.display = 'block';
+    registerForm.style.display = 'none';
+    headline.textContent = 'Welcome back';
+    subline.textContent = 'Sign in to your finance dashboard';
+    footnote.style.display = 'block';
+    goLoginStep(0);
+  } else {
+    tabRegister.classList.add('active');
+    tabLogin.classList.remove('active');
+    loginForm.style.display = 'none';
+    registerForm.style.display = 'block';
+    headline.textContent = 'Welcome';
+    subline.textContent = 'Create your account to get started';
+    footnote.style.display = 'none';
+  }
+}
+
+/* ---------------- step navigation ---------------- */
+function goLoginStep(i){
+  if(i === 1){
+    const id = document.getElementById('identifier').value.trim();
+    if(!id){ flash('identifier'); return; }
+    document.getElementById('identifierChip').textContent = id;
+  }
+  document.getElementById('loginSteps').style.transform = `translateX(-${i * 33.333}%)`;
+}
+function flash(id){
+  const el = document.getElementById(id);
+  el.style.borderColor = 'var(--danger)';
+  setTimeout(()=> el.style.borderColor = '', 900);
+  el.focus();
+}
+
+function clearMsg(id){
+  const el = document.getElementById(id);
+  el.className = 'msg';
+  el.textContent = '';
+}
+function showMsg(id, text, type){
+  const el = document.getElementById(id);
+  el.className = 'msg ' + type;
+  el.textContent = text;
+}
+
+/* ---------------- API base ---------------- */
+const API_BASE = 'http://127.0.0.1:8000'; // change to your FastAPI server URL
+
+/* ---------------- LOGIN submit ---------------- */
+loginForm.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  clearMsg('loginMsg');
+  const identifier = document.getElementById('identifier').value.trim();
+  const password = document.getElementById('password').value;
+  if(!password){ flash('password'); return; }
+
+  const btn = document.getElementById('loginSubmitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Signing in...';
+
+  try{
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identifier, password })
+    });
+
+    const data = await res.json().catch(()=> ({}));
+
+    if(res.ok){
+      // expected: { access_token: "...", token_type: "bearer" }
+      sessionStorage.setItem('token', data.access_token);
+      showMsg('loginMsg', 'Welcome back! Redirecting...', 'success');
+      setTimeout(()=> window.location.href = 'index.html', 800);
+    } else if(res.status === 404){
+      showMsg('loginMsg', 'User not found.', 'error');
+    } else if(res.status === 401){
+      showMsg('loginMsg', 'Incorrect password.', 'error');
+    } else {
+      showMsg('loginMsg', 'Something went wrong.', 'error');
+    }
+  } catch(err){
+    showMsg('loginMsg', 'Something went wrong.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Sign in';
+  }
+});
+
+/* ---------------- REGISTER submit ---------------- */
+registerForm.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  clearMsg('registerMsg');
+  const username = document.getElementById('regUsername').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
+  if(!username){ flash('regUsername'); return; }
+  if(!email){ flash('regEmail'); return; }
+  if(!password){ flash('regPassword'); return; }
+
+  const btn = document.getElementById('registerSubmitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Creating account...';
+
+  try{
+    const res = await fetch(`${API_BASE}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email, password })
+    });
+
+    const data = await res.json().catch(()=> ({}));
+
+    if(res.ok){
+      showMsg('registerMsg', 'Account created! You can sign in now.', 'success');
+      setTimeout(()=> switchMode('login'), 1200);
+    } else if(res.status === 409 || res.status === 400){
+      showMsg('registerMsg', 'User already exists.', 'error');
+    } else {
+      showMsg('registerMsg', 'Something went wrong.', 'error');
+    }
+  } catch(err){
+    showMsg('registerMsg', 'Something went wrong.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Create account';
+  }
+});
+</script>
+</body>
+</html>
