@@ -452,6 +452,16 @@ function switchMode(mode){
 }
 
 /* ---------------- step navigation ---------------- */
+/* Pressing Enter in the identifier field must advance to step 2,
+   not fall through to the form's submit handler (which lives on
+   the off-screen password step and would fire prematurely). */
+document.getElementById('identifier').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    goLoginStep(1);
+  }
+});
+
 function goLoginStep(i){
   if(i === 1){
     const id = document.getElementById('identifier').value.trim();

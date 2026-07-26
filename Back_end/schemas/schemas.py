@@ -8,3 +8,6 @@ class user_data(BaseModel):
 class user_login(BaseModel):
     identifier : str
     password : str
+
+class TokenData(BaseModel):
+    id: int | None = None  

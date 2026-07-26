@@ -5,6 +5,7 @@ from Back_end.schemas import schemas
 from Back_end.models import userdata
 from Back_end.core import token,hashing
 from Back_end.database.database import get_db
+from Back_end.core.oauth2 import get_current_user
 
 
 
@@ -42,3 +43,11 @@ def login(request: schemas.user_login, db: Session = Depends(get_db)):
 
     access_token = token.create_access_token(data={"sub": str(user.uid)})
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.get("/me", tags=["Register"], status_code=status.HTTP_200_OK)
+def read_current_user(current_user_token = Depends(get_current_user), db: Session = Depends(get_db)):
+    user = db.query(userdata.user_data).filter(userdata.user_data.uid == int(current_user_token.id)).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return {"user_name": user.user_name, "user_email": user.user_email}

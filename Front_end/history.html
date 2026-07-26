@@ -52,13 +52,12 @@
         <option value="yesterday">Yesterday</option>
         <option value="week">A week ago</option>
         <option value="month">A month ago</option>
-        <option value="custom">Custom range...</option>
       </select>
 
       <div class="custom-range" id="customRange">
-        <input type="date" id="customStart">
+        <div id="rangeStartHost"></div>
         <span style="color:var(--muted); font-size:12px;">to</span>
-        <input type="date" id="customEnd">
+        <div id="rangeEndHost"></div>
       </div>
 
       <select class="dropdown" id="sortFilter">
@@ -88,6 +87,7 @@
 
 <script src="js/auth.js"></script>
 <script src="js/api.js"></script>
+<script src="js/datepicker.js?v=2"></script>
 <script src="js/history.js"></script>
 </body>
 </html>
