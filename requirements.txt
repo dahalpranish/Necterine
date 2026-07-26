@@ -1,0 +1,3 @@
+Fastapi
+Sqlalchemy
+bycrypt==4.0.1

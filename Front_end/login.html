@@ -526,11 +526,11 @@ loginForm.addEventListener('submit', async (e)=>{
 registerForm.addEventListener('submit', async (e)=>{
   e.preventDefault();
   clearMsg('registerMsg');
-  const username = document.getElementById('regUsername').value.trim();
-  const email = document.getElementById('regEmail').value.trim();
+  const user_name = document.getElementById('regUsername').value.trim();
+  const user_email = document.getElementById('regEmail').value.trim();
   const password = document.getElementById('regPassword').value;
-  if(!username){ flash('regUsername'); return; }
-  if(!email){ flash('regEmail'); return; }
+  if(!user_name){ flash('regUsername'); return; }
+  if(!user_email){ flash('regEmail'); return; }
   if(!password){ flash('regPassword'); return; }
 
   const btn = document.getElementById('registerSubmitBtn');
@@ -541,7 +541,7 @@ registerForm.addEventListener('submit', async (e)=>{
     const res = await fetch(`${API_BASE}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, email, password })
+      body: JSON.stringify({ user_name, user_email, password })
     });
 
     const data = await res.json().catch(()=> ({}));
@@ -549,10 +549,17 @@ registerForm.addEventListener('submit', async (e)=>{
     if(res.ok){
       showMsg('registerMsg', 'Account created! You can sign in now.', 'success');
       setTimeout(()=> switchMode('login'), 1200);
-    } else if(res.status === 409 || res.status === 400){
-      showMsg('registerMsg', 'User already exists.', 'error');
     } else {
-      showMsg('registerMsg', 'Something went wrong.', 'error');
+      const detail = (data.detail || '').toLowerCase();
+      if(detail.includes('email')){
+        showMsg('registerMsg', 'Email already exists.', 'error');
+      } else if(detail.includes('exist')){
+        showMsg('registerMsg', 'User already exists.', 'error');
+      } else if(res.status === 409 || res.status === 400){
+        showMsg('registerMsg', 'User already exists.', 'error');
+      } else {
+        showMsg('registerMsg', 'Something went wrong.', 'error');
+      }
     }
   } catch(err){
     showMsg('registerMsg', 'Something went wrong.', 'error');
