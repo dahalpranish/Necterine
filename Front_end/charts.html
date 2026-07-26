@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ledger — Charts</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-left">
+    <div class="brand">
+      <div class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4 L20 18 H4 Z" fill="#06210d"/></svg></div>
+      Ledger
+    </div>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Dashboard</a>
+      <a href="history.html" class="nav-link">History</a>
+      <a href="charts.html" class="nav-link active">Charts</a>
+    </div>
+  </div>
+  <div class="nav-right">
+    <span class="user-name">...</span>
+    <div class="user-avatar">A</div>
+    <button class="btn-signout" id="signOutBtn">Sign out</button>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="range-filters">
+    <button class="range-btn" data-range="week">Week</button>
+    <button class="range-btn" data-range="month">Month</button>
+    <button class="range-btn" data-range="half_year">Half Year</button>
+    <button class="range-btn active" data-range="year">Year</button>
+    <button class="range-btn" data-range="all">All Time</button>
+  </div>
+
+  <div class="chart-grid">
+    <div class="card">
+      <h3 class="chart-title">Monthly Spending</h3>
+      <div class="chart-box"><canvas id="monthlyChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h3 class="chart-title">Spending by Category</h3>
+      <div class="chart-box"><canvas id="categoryChart"></canvas></div>
+      <div class="legend-list" id="categoryLegend"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="chart-title" id="breakdownTitle">Category Breakdown</h3>
+    <div class="chart-box tall"><canvas id="breakdownChart"></canvas></div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/charts.js"></script>
+</body>
+</html>

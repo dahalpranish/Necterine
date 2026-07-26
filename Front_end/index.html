@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ledger — Dashboard</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-left">
+    <div class="brand">
+      <div class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4 L20 18 H4 Z" fill="#06210d"/></svg></div>
+      Ledger
+    </div>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link active">Dashboard</a>
+      <a href="history.html" class="nav-link">History</a>
+      <a href="charts.html" class="nav-link">Charts</a>
+    </div>
+  </div>
+  <div class="nav-right">
+    <span class="user-name">...</span>
+    <div class="user-avatar">A</div>
+    <button class="btn-signout" id="signOutBtn">Sign out</button>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="stat-grid">
+    <div class="card">
+      <div class="stat-label">This month</div>
+      <div class="stat-value" id="statThisMonth">$0.00</div>
+      <div class="stat-sub" id="statVsLastMonth">—</div>
+    </div>
+    <div class="card">
+      <div class="stat-label">Last month</div>
+      <div class="stat-value" id="statLastMonth">$0.00</div>
+      <div class="stat-sub" id="statLastMonthLabel">—</div>
+    </div>
+    <div class="card">
+      <div class="stat-label">This month entries</div>
+      <div class="stat-value" id="statEntryCount">0</div>
+      <div class="stat-sub">expenses logged</div>
+    </div>
+    <div class="card">
+      <div class="stat-label">Top category</div>
+      <div class="stat-value" id="statTopCategory">—</div>
+      <div class="stat-sub">highest spend this month</div>
+    </div>
+  </div>
+
+  <div class="dash-grid">
+    <div class="card">
+      <h2 class="form-title">Add Expense</h2>
+      <form id="expenseForm">
+        <label class="field-label" for="expDate">Date</label>
+        <input class="field" type="date" id="expDate" required>
+
+        <label class="field-label" for="expDesc">Description</label>
+        <input class="field" type="text" id="expDesc" placeholder="e.g. Groceries at Trader Joe's" required>
+
+        <label class="field-label">Category</label>
+        <div class="category-grid" id="categoryGrid">
+          <div class="category-pill selected" data-category="Food">Food</div>
+          <div class="category-pill" data-category="Transport">Transport</div>
+          <div class="category-pill" data-category="Housing">Housing</div>
+          <div class="category-pill" data-category="Health">Health</div>
+          <div class="category-pill" data-category="Entertainment">Entertainment</div>
+          <div class="category-pill" data-category="Shopping">Shopping</div>
+          <div class="category-pill" data-category="Education">Education</div>
+          <div class="category-pill" data-category="Other">Other</div>
+        </div>
+
+        <label class="field-label" for="expAmount">Amount (USD)</label>
+        <input class="field" type="number" id="expAmount" step="0.01" min="0" placeholder="0.00" required>
+
+        <button type="submit" class="btn-primary" id="addExpenseBtn">Add Expense</button>
+        <p class="error-text" id="formError" style="display:none"></p>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2 class="list-title">Recent — Today</h2>
+      <div id="recentList">
+        <p class="loading-text">Loading...</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>
