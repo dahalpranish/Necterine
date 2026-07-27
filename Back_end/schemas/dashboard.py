@@ -11,7 +11,7 @@ class CategoryEnum(str,Enum):
     EDUCATION = "Education"
     OTHER = "Other"
 class expense_write(BaseModel):
-    date_at: date
+    date: date
     description : str
     category: CategoryEnum
     price : float

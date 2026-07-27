@@ -8,4 +8,4 @@ class Category(Base):
     __tablename__ = "Category_table"
     cid= Column( Integer, primary_key=True, index=True)
     category= Column(Enum(CategoryEnum), nullable= False)
-    expenses= relationship("Expenses",back_populates="category")
+    expenses= relationship("Expense",back_populates="category")
