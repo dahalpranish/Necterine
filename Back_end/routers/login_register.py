@@ -22,7 +22,7 @@ def resister(request:schemas.user_data,db: Session = Depends(get_db)):
     if existing_username:
         raise HTTPException(status_code=400, detail="username already exists")
     user= create_user(db,request)
-    return {"user_name": user.user_name, "user_email":user.user_email,"password":user.password}
+    return {"user_name": user.user_name, "user_email":user.user_email}
 
 @router.post("/login", tags=["login_authentication"],status_code= status.HTTP_200_OK)
 def login(request: schemas.user_login, db: Session = Depends(get_db)):

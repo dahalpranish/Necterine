@@ -15,8 +15,8 @@ def get_user_by_username(db:Session,username:str):
 
 def get_user_by_identifier(db:Session,identifier:str):
     return db.query(userdata.user_data).filter(
-        userdata.user_data.user_name == identifier | 
-        userdata.user_data.user_email == identifier 
+        (userdata.user_data.user_name == identifier) | 
+        (userdata.user_data.user_email == identifier )
         ).first()
 #this is for the user name access for the profile
 def get_user_by_id(db:Session,user_id: int):

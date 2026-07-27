@@ -7,6 +7,10 @@ function fmtMoney(n){
   const num = Number(n) || 0;
   return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
+function fmtShortDate(iso){
+  const [y, m, d] = iso.split('-');
+  return `${m}/${d}/${y}`;
+}
 function fmtTableDate(dateStr){
   const d = new Date(dateStr + 'T00:00:00');
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -27,17 +31,31 @@ const tbody          = document.getElementById('historyBody');
 const rangeStart = createDatePicker(document.getElementById('rangeStartHost'), {
   hiddenInputId: 'customStart',
   placeholder: 'From',
-  onChange: () => loadHistory()
+  // once "from" is fully picked, hand off straight to "to" (if it's still empty)
+  onChange: (iso) => {
+    loadHistory();
+    if(iso && !rangeEnd.getValue()) rangeEnd.open();
+  }
 });
 const rangeEnd = createDatePicker(document.getElementById('rangeEndHost'), {
   hiddenInputId: 'customEnd',
   placeholder: 'To',
-  onChange: () => loadHistory()
+  onChange: (iso) => {
+    loadHistory();
+    if(iso && !rangeStart.getValue()) rangeStart.open();
+  }
 });
+
+/* Dropdown option used only to display the active custom range once
+   picked; it's kept out of the visible option list (see history.html)
+   and is never a real user-facing choice. */
+const customOption = document.getElementById('customOption');
+let lastPreset = dateFilter.value;
 
 /* Choosing a preset from the dropdown clears any custom range so it
    doesn't silently keep overriding the preset the user just picked. */
 dateFilter.addEventListener('change', () => {
+  lastPreset = dateFilter.value;
   rangeStart.setValue(null);
   rangeEnd.setValue(null);
   loadHistory();
@@ -59,6 +77,13 @@ async function loadHistory(){
   const start = rangeStart.getValue();
   const end = rangeEnd.getValue();
   const hasCustomRange = start && end;
+
+  if(hasCustomRange){
+    customOption.textContent = `Custom: ${fmtShortDate(start)} – ${fmtShortDate(end)}`;
+    dateFilter.value = 'custom';
+  } else {
+    dateFilter.value = lastPreset;
+  }
 
   const params = {
     search: searchInput.value.trim(),

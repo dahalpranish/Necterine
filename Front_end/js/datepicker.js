@@ -20,6 +20,10 @@
      picker.getValue() / picker.setValue('2026-07-01' | null)
    ============================================================ */
 
+/* Shared across every picker instance on the page so only one
+   panel is ever open at a time. */
+let _activeDatePicker = null;
+
 function createDatePicker(host, options = {}){
   const {
     hiddenInputId,
@@ -46,6 +50,7 @@ function createDatePicker(host, options = {}){
     return `${String(m + 1).padStart(2, '0')}/${String(d).padStart(2, '0')}/${y}`;
   }
 
+  let api; // assigned at the bottom; referenced by openPanel/closePanel above
   let selected = initialValue ? parseISO(initialValue) : null;
   let viewDate = selected ? { y: selected.y, m: selected.m } : todayParts();
   let yearRangeStart = viewDate.y - 12;
@@ -91,15 +96,18 @@ function createDatePicker(host, options = {}){
   }
 
   function openPanel(){
+    if(_activeDatePicker && _activeDatePicker !== api) _activeDatePicker.close();
     open = true;
     panel.hidden = false;
     view = 'days';
     if(selected) viewDate = { y: selected.y, m: selected.m };
     renderView();
+    _activeDatePicker = api;
   }
   function closePanel(){
     open = false;
     panel.hidden = true;
+    if(_activeDatePicker === api) _activeDatePicker = null;
   }
 
   trigger.addEventListener('click', (e) => {
@@ -249,13 +257,16 @@ function createDatePicker(host, options = {}){
 
   renderTrigger();
 
-  return {
+  api = {
     getValue: () => hiddenInput.value || null,
     setValue: (iso) => {
       selected = iso ? parseISO(iso) : null;
       if(selected) viewDate = { y: selected.y, m: selected.m };
       hiddenInput.value = iso || '';
       renderTrigger();
-    }
+    },
+    open: openPanel,
+    close: closePanel
   };
+  return api;
 }
