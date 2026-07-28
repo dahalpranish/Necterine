@@ -1,4 +1,4 @@
-from pydantic import BaseModel,field_serializer,ConfigDict
+from pydantic import AliasPath, BaseModel, Field,ConfigDict,Field
 from datetime import date,datetime
 from enum import Enum
 class CategoryEnum(str,Enum):
@@ -16,10 +16,15 @@ class expense_write(BaseModel):
     category: CategoryEnum
     price : float
 class expense_show(expense_write):
-    eid:int
-    created_at:datetime
-    @field_serializer('created_at')
-    def serialize_date_only(self, dt: datetime, _info):
-        return dt.strftime("%d %b %Y")
+    price: float = Field(validation_alias="amount")
+    id:int = Field(validation_alias="eid")
+    category: CategoryEnum = Field(validation_alias=AliasPath("category", "category"))
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True,populate_by_name=True)
+
+class analytic(BaseModel):
+    this_month_total : float
+    last_month_total: float
+    this_month_count : int
+    top_category : str
+    percent_change_vs_last_month: float
