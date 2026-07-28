@@ -29,6 +29,7 @@ class SortEnum(str,Enum):
     AMOUNT_ASC = "amount_asc"
     AMOUNT_DESC = "amount_desc"
 
+
 class ExpenseQueryParams:
     def __init__(
         self,

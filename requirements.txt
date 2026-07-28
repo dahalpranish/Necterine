@@ -1,3 +1,15 @@
 Fastapi
 Sqlalchemy
 bycrypt==4.0.1
+
+another = { "key": list}
+main = {"k1":{"food": [ 1,2,3,4]},
+"k2":{ "Transport": [10,23,44,11]},
+"k3":{ "housing": [10,23.44,11]},
+"k4":{"Shopping" : [33,23,123,33]}}
+i want this to be
+{
+"lables" = [k1,k2,k3,k4],
+"datasets" : [ { "category": "food", "data": [ 1,2,3,4]},
+                { "category": "Transport", "data": [10,23,44,11]},
+                .....]

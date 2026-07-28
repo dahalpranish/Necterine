@@ -1,12 +1,12 @@
 from sqlalchemy import extract
-from fastapi import APIRouter,Depends,HTTPException,status
+from fastapi import APIRouter,Depends,status
 from sqlalchemy.orm import Session
-from Back_end.models import Expense,Category, expense
+from Back_end.models import Expense,Category
 from Back_end.database.database import get_db
 from Back_end.core.oauth2 import get_current_user
 from datetime import date, timedelta
-from Back_end.schemas import dashboard
 from Back_end.schemas.history import *
+from dateutil.relativedelta import relativedelta
 
 
 router = APIRouter()
@@ -26,8 +26,7 @@ def history(params: ExpenseQueryParams=Depends(),db: Session = Depends(get_db),c
         elif params.date_filter == DateFilterEnum.WEEK:
             query = query.filter(Expense.date >= (date.today()-timedelta(days=7)))
         elif params.date_filter == DateFilterEnum.MONTH:
-            query = query.filter(extract('year',Expense.date) == date.today().year,
-                                 extract('month',Expense.date)== date.today().month)
+            query = query.filter(Expense.date > date.today()-relativedelta(months=1) )
         elif params.date_filter == DateFilterEnum.CUSTOM:
             if params.start_date and params.end_date:
                 query = query.filter(Expense.date >= params.start_date, Expense.date <= params.end_date)
