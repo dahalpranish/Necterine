@@ -1,10 +1,10 @@
 from sqlalchemy import extract
-from fastapi import APIRouter,Depends,status
+from fastapi import APIRouter,Depends, params,status
 from sqlalchemy.orm import Session
 from Back_end.models import Expense,Category
 from Back_end.database.database import get_db
 from Back_end.core.oauth2 import get_current_user
-from datetime import date, timedelta
+from datetime import date, timedelta,datetime
 from Back_end.schemas.charts import *
 from collections import defaultdict
 from Back_end.routers.repository.chart_repository import chart_comparision
@@ -14,25 +14,32 @@ router = APIRouter()
 @router.get("/analytics/monthly-summary")
 def chart_data(params: CharQueryParams = Depends(), db: Session = Depends(get_db), current_user_token = Depends(get_current_user)):
     rows = chart_comparision(params, db, current_user_token)
-    monthly = defaultdict(float)
-    if params.range:
-        if params.range == RangeEnum.WEEK or params.range == RangeEnum.MONTH:
-            for exp, cat in rows:
-                key = exp.date.strftime("%d %b")
-                monthly[key] += float(exp.amount)
-                sorted_keys = sorted(monthly.keys())
- # "2026-01" sort correctly as string
-        elif params.range == RangeEnum.HALF_YEAR or params.range == RangeEnum.YEAR or params.range == RangeEnum.ALL:
-            for exp, cat in rows:
-                key = exp.date.strftime("%b %Y")
-                monthly[key] += float(exp.amount)
-                sorted_keys = sorted(monthly.keys())  # "2026-01" sort correctly as string
 
+    if params.range == RangeEnum.WEEK:
+        # No aggregation — every expense is its own point on the graph.
+        # Ordered by id (insertion order), NOT by date.
+        sorted_rows = sorted(rows, key=lambda r: r[0].eid)
+
+        labels = [exp.date.strftime("%d %b '%y") for exp, cat in sorted_rows]
+        totals = [float(exp.amount) for exp, cat in sorted_rows]
+
+    else:
+        # MONTH, HALF_YEAR, YEAR, ALL — grouped by exact day (summed),
+        # sorted chronologically. Can't sort by id here since several
+        # expenses with different ids collapse into one day's total.
+        daily = defaultdict(float)
+        for exp, cat in rows:
+            daily[exp.date] += float(exp.amount)
+
+        sorted_dates = sorted(daily.keys())
+        labels = [d.strftime("%d %b '%y") for d in sorted_dates]
+        totals = [daily[d] for d in sorted_dates]
 
     return {
-        "labels": sorted_keys,
-        "totals": [monthly[k] for k in sorted_keys]
+        "labels": labels,
+        "totals": totals
     }
+
 @router.get("/analytics/category-summary")
 def chart_data(params: CharQueryParams = Depends(), db: Session = Depends(get_db), current_user_token = Depends(get_current_user)):
     rows = chart_comparision(params, db, current_user_token)
@@ -50,32 +57,36 @@ def chart_data(params: CharQueryParams = Depends(), db: Session = Depends(get_db
 @router.get("/analytics/category-breakdown")
 def chart_data(params: CharQueryParams = Depends(), db: Session = Depends(get_db), current_user_token = Depends(get_current_user)):
     rows = chart_comparision(params, db, current_user_token)
-    monthly = defaultdict(list)
-    dataset = defaultdict(dict)
-    datasets=[]
-    if params.range:
-        if params.range == RangeEnum.WEEK or params.range == RangeEnum.MONTH:
-            for exp, cat in rows:
-                main_key =  exp.date.strftime("%d %b")
-                key = cat.category
-                monthly[key].append(float(exp.amount))
-                dataset[main_key] = monthly[key]
 
-        elif params.range == RangeEnum.HALF_YEAR or params.range == RangeEnum.YEAR or params.range == RangeEnum.ALL:
-            for exp, cat in rows:
-                main_key =  exp.date.strftime("%b %Y")
-                key = cat.category
-                monthly[key].append(float(exp.amount))
-                dataset[main_key] = monthly[key]            
-    data_list= list(dataset.keys())
+    if not params.range:
+        return {"labels": [], "datasets": []}
 
-    for sub_dict in dataset.values():
-        for category, data in sub_dict.items():
-            datasets.append({
+    date_fmt = "%d %b" if params.range in (RangeEnum.WEEK, RangeEnum.MONTH) else "%b %Y"
+
+    # 1. Sum amounts per (label, category) — single flat lookup, no nested lists
+    totals = defaultdict(float)
+    labels_seen = set()
+    categories_seen = set()
+
+    for exp, cat in rows:
+        label = exp.date.strftime(date_fmt)
+        totals[(label, cat.category)] += float(exp.amount)
+        labels_seen.add(label)
+        categories_seen.add(cat.category)
+
+    # 2. Sort labels chronologically
+    sorted_labels = sorted(labels_seen, key=lambda d: datetime.strptime(d, date_fmt))
+
+    # 3. Build datasets — iterate FULL label list per category, fill 0 where missing
+    datasets = [
+        {
             "category": category,
-            "data": data
-        })
+            "data": [totals.get((label, category), 0) for label in sorted_labels]
+        }
+        for category in sorted(categories_seen)
+    ]
+
     return {
-         "labels": data_list,
-         "datasets": datasets
+        "labels": sorted_labels,
+        "datasets": datasets
     }

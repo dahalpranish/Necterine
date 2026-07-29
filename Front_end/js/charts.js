@@ -56,6 +56,13 @@ async function loadMonthlyChart(){
   const labels = ok && data ? data.labels : [];
   const totals = ok && data ? data.totals : [];
 
+  // Soft gradient fade under the line — this is what gives it that
+  // "analytics dashboard" look instead of a flat fill color.
+  const canvasCtx = ctx.getContext('2d');
+  const gradient = canvasCtx.createLinearGradient(0, 0, 0, ctx.parentElement.clientHeight);
+  gradient.addColorStop(0, 'rgba(52,199,89,0.28)');
+  gradient.addColorStop(1, 'rgba(52,199,89,0)');
+
   monthlyChart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -63,20 +70,49 @@ async function loadMonthlyChart(){
       datasets: [{
         data: totals,
         borderColor: '#34c759',
-        backgroundColor: 'rgba(52,199,89,0.08)',
-        pointBackgroundColor: '#34c759',
-        pointRadius: 4,
-        tension: 0.3,
+        backgroundColor: gradient,
+        borderWidth: 2,
+        pointRadius: totals.length > 10 ? 0 : 3,         // hide points by default — clean line
+        pointHoverRadius: 5,     // show one on hover
+        pointHoverBackgroundColor: '#34c759',
+        pointHoverBorderColor: '#0a0e14',
+        pointHoverBorderWidth: 2,
+        tension: 0.35,
         fill: true
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#171d27',
+          borderColor: '#232a36',
+          borderWidth: 1,
+          titleColor: '#8891a3',
+          bodyColor: '#eef1f6',
+          bodyFont: { weight: '700' },
+          padding: 10,
+          displayColors: false,
+          callbacks: {
+            label: (item) => '$' + item.parsed.y.toFixed(2)
+          }
+        }
+      },
       scales: {
-        y: { beginAtZero: true, ticks: { callback: v => '$' + v } },
-        x: { grid: { display: false } }
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(35,42,54,0.6)', drawTicks: false },
+          border: { display: false },
+          ticks: { callback: v => '$' + v }
+        },
+        x: {
+          grid: { display: false },
+          border: { display: false },
+          ticks: { autoSkip: true, maxRotation: 0 }
+        }
       }
     }
   });

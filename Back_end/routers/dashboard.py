@@ -44,7 +44,7 @@ def analytic(db: Session = Depends(get_db),current_user_token = Depends(get_curr
                                             extract('year',Expense.date) == date.today().year,
                                               Expense.user_id== current_user_token.id).all()
     this_month_total = sum(expense.amount for expense in this_month)
-    all_time= db.query(Expense).filter(Expense.user_id== current_user_token.id).limit(10).all()
+    all_time= db.query(Expense).filter(Expense.user_id== current_user_token.id).all()
     all_time_total = sum(expense.amount for expense in all_time)
     last_month =db.query(Expense).filter(extract('month',Expense.date) == date.today().month-1,
                                             extract('year',Expense.date) == date.today().year,
