@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ledger — Sign in</title>
+<title>Necterine — Sign in</title>
 <style>
   :root{
     --bg: #0a0e14;
@@ -11,8 +11,8 @@
     --card-border: #232a36;
     --text: #eef1f6;
     --muted: #8891a3;
-    --green: #34c759;
-    --green-dark: #24913f;
+    --accent: #34c759;
+    --accent-dark: #24913f;
     --danger: #ff5c5c;
     --input-bg: #1a2029;
   }
@@ -133,7 +133,7 @@
     width: 34px;
     height: 34px;
     border-radius: 9px;
-    background: linear-gradient(160deg, var(--green), var(--green-dark));
+    background: linear-gradient(160deg, var(--accent), var(--accent-dark));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -176,7 +176,7 @@
     transition: color 0.2s ease, background 0.2s ease;
   }
   .tab.active{
-    background: var(--green);
+    background: var(--accent);
     color: #06210d;
   }
 
@@ -218,7 +218,7 @@
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
   input.field:focus{
-    border-color: var(--green);
+    border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(52,199,89,0.15);
   }
   input.field::placeholder{ color: #57606f; }
@@ -238,7 +238,7 @@
   .locked-chip button{
     background: none;
     border: none;
-    color: var(--green);
+    color: var(--accent);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -252,7 +252,7 @@
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
-    background: var(--green);
+    background: var(--accent);
     color: #06210d;
     margin-top: 18px;
     transition: transform 0.15s ease, filter 0.15s ease;
@@ -293,7 +293,7 @@
     display: block;
     background: rgba(52,199,89,0.1);
     border: 1px solid rgba(52,199,89,0.35);
-    color: var(--green);
+    color: var(--accent);
   }
   @keyframes shake{
     0%, 100%{ transform: translateX(0); }
@@ -346,7 +346,7 @@
       <div class="brand-mark">
         <svg viewBox="0 0 24 24" fill="none"><path d="M12 4 L20 18 H4 Z" fill="#06210d"/></svg>
       </div>
-      <div class="brand-name">Ledger</div>
+      <div class="brand-name">Necterine</div>
     </div>
 
     <div class="card">
@@ -402,7 +402,7 @@
         <div class="msg" id="registerMsg"></div>
       </form>
 
-      <p class="footnote" id="footnote">Ledger: <b>Best way to finance</b></p>
+      <p class="footnote" id="footnote">Necterine: <b>Best way to finance</b></p>
     </div>
   </div>
 </div>

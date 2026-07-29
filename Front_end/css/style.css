@@ -4,11 +4,23 @@
   --card-border: #232a36;
   --text: #eef1f6;
   --muted: #8891a3;
-  --green: #34c759;
-  --green-dark: #24913f;
+  --accent: #34c759;
+  --accent-dark: #24913f;
+  --accent-rgb: 52,199,89;
   --danger: #ff5c5c;
   --input-bg: #1a2029;
   --input-bg-2: #171d27;
+}
+
+[data-theme="red"]{
+  --accent: #ff5c5c;
+  --accent-dark: #c23e3e;
+  --accent-rgb: 255,92,92;
+}
+[data-theme="blue"]{
+  --accent: #4aa8ea;
+  --accent-dark: #2f7fc1;
+  --accent-rgb: 74,168,234;
 }
 
 *{ box-sizing: border-box; }
@@ -36,7 +48,7 @@ a{ color: inherit; text-decoration: none; }
 .brand{ display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; }
 .brand-mark{
   width: 26px; height: 26px; border-radius: 7px;
-  background: linear-gradient(160deg, var(--green), var(--green-dark));
+  background: linear-gradient(160deg, var(--accent), var(--accent-dark));
   display: flex; align-items: center; justify-content: center;
 }
 .brand-mark svg{ width: 12px; height: 12px; }
@@ -60,21 +72,67 @@ a{ color: inherit; text-decoration: none; }
 .user-name{ font-size: 14px; color: var(--muted); }
 .user-avatar{
   width: 28px; height: 28px; border-radius: 50%;
-  background: rgba(52,199,89,0.18);
-  color: var(--green);
+  background: rgba(var(--accent-rgb),0.18);
+  color: var(--accent);
   display: flex; align-items: center; justify-content: center;
   font-size: 13px; font-weight: 700;
 }
-.btn-signout{
-  padding: 7px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--card-border);
-  background: var(--input-bg);
-  color: var(--text);
-  font-size: 13px;
-  cursor: pointer;
+
+/* ---------------- PROFILE DROPDOWN ---------------- */
+.profile-menu{ position: relative; }
+.profile-trigger{
+  display: flex; align-items: center; gap: 10px;
+  background: none; border: none; cursor: pointer;
+  padding: 4px 6px 4px 10px; border-radius: 20px; color: var(--text);
 }
-.btn-signout:hover{ border-color: #3a4354; }
+.profile-trigger:hover{ background: var(--input-bg); }
+.profile-trigger .user-name{ font-size: 13.5px; }
+
+.profile-dropdown{
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  background: #171d27;
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+  z-index: 60;
+}
+.profile-menu:hover .profile-dropdown,
+.profile-menu.pinned .profile-dropdown{ display: block; }
+
+.dropdown-user{
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 10px 10px;
+  border-bottom: 1px solid var(--card-border);
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.dropdown-label{
+  font-size: 10.5px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 10px 8px;
+}
+.theme-options{ display: flex; gap: 10px; padding: 0 10px 12px; }
+.theme-dot{
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid transparent; cursor: pointer; padding: 0;
+}
+.theme-dot.active{ border-color: var(--text); }
+
+.dropdown-signout{
+  width: 100%; text-align: left;
+  background: none; border: none; border-top: 1px solid var(--card-border);
+  color: var(--danger); font-size: 13px; padding: 10px; margin-top: 4px;
+  cursor: pointer; border-radius: 8px;
+}
+.dropdown-signout:hover{ background: var(--input-bg); }
 
 /* ---------------- LAYOUT ---------------- */
 .page{ max-width: 1300px; margin: 0 auto; padding: 24px 28px 60px; }
@@ -96,7 +154,7 @@ a{ color: inherit; text-decoration: none; }
 .stat-label{ font-size: 11px; letter-spacing: 0.6px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
 .stat-value{ font-size: 26px; font-weight: 700; font-family: 'Courier New', monospace; }
 .stat-sub{ font-size: 12px; color: var(--muted); margin-top: 6px; }
-.stat-sub.up{ color: var(--green); }
+.stat-sub.up{ color: var(--accent); }
 
 /* ---------------- DASHBOARD BODY GRID ---------------- */
 .dash-grid{
@@ -135,8 +193,8 @@ input.field[type="number"]{
   appearance:textfield;
 }
 input.field:focus, select.field:focus{
-  border-color: var(--green);
-  box-shadow: 0 0 0 3px rgba(52,199,89,0.15);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.15);
 }
 input[type="date"].field, input[type="datetime-local"].field{
   color-scheme: dark;
@@ -161,9 +219,9 @@ input[type="date"].field, input[type="datetime-local"].field{
 }
 .category-pill:hover{ border-color: #3a4354; color: var(--text); }
 .category-pill.selected{
-  border-color: var(--green);
-  color: var(--green);
-  background: rgba(52,199,89,0.08);
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(var(--accent-rgb),0.08);
 }
 
 .btn-primary{
@@ -172,7 +230,7 @@ input[type="date"].field, input[type="datetime-local"].field{
   padding: 12px 0;
   border-radius: 9px;
   border: none;
-  background: var(--green);
+  background: var(--accent);
   color: #06210d;
   font-weight: 700;
   font-size: 14px;
@@ -241,7 +299,7 @@ input[type="date"].field, input[type="datetime-local"].field{
   border-radius: 9px;
   outline: none;
 }
-.search-input:focus{ border-color: var(--green); }
+.search-input:focus{ border-color: var(--accent); }
 select.dropdown{
   background: var(--input-bg);
   border: 1px solid var(--card-border);
@@ -315,8 +373,8 @@ table.history-table td.date-col{ color: var(--muted); font-family: 'Courier New'
 }
 .range-btn:hover{ color: var(--text); }
 .range-btn.active{
-  background: var(--green);
-  border-color: var(--green);
+  background: var(--accent);
+  border-color: var(--accent);
   color: #06210d;
   font-weight: 700;
 }
@@ -451,11 +509,11 @@ table.history-table td.date-col{ color: var(--muted); font-family: 'Courier New'
 .dp-cell.dp-blank{ cursor: default; }
 .dp-cell.dp-blank:hover{ background: none; }
 .dp-cell.selected{
-  background: var(--green);
+  background: var(--accent);
   color: #06210d;
   font-weight: 700;
 }
-.dp-cell.is-today{ border: 1px solid var(--green); color: var(--green); }
+.dp-cell.is-today{ border: 1px solid var(--accent); color: var(--accent); }
 .dp-months-grid .dp-cell, .dp-years-grid .dp-cell{ padding: 9px 0; }
 
 .dp-footer{
@@ -474,7 +532,7 @@ table.history-table td.date-col{ color: var(--muted); font-family: 'Courier New'
 }
 .dp-clear{ color: var(--muted); }
 .dp-clear:hover{ color: var(--danger); }
-.dp-today{ color: var(--green); font-weight: 600; }
+.dp-today{ color: var(--accent); font-weight: 600; }
 
 @media (max-width: 900px){
   .stat-grid{ grid-template-columns: repeat(2, 1fr); }

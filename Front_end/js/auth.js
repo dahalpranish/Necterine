@@ -4,6 +4,8 @@
    1. Block access immediately if there's no token (redirect to login.html)
    2. Verify the token with the backend and populate navbar user info
    3. Wire up the Sign out button
+   4. Wire up the profile dropdown (hover to preview, click to pin/unpin)
+   5. Apply + persist the selected accent theme
    ============================================================ */
 
 const API_BASE = 'http://127.0.0.1:8000'; // update to your FastAPI server URL
@@ -73,8 +75,45 @@ function signOut(){
   window.location.href = 'login.html';
 }
 
+/* ---------------- theme ---------------- */
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  document.querySelectorAll('.theme-dot').forEach(dot => {
+    dot.classList.toggle('active', dot.dataset.theme === theme);
+  });
+  localStorage.setItem('theme', theme);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   verifyAndLoadUser();
+
   const btn = document.getElementById('signOutBtn');
   if(btn) btn.addEventListener('click', signOut);
+
+  applyTheme(localStorage.getItem('theme') || 'green');
+
+  /* ---------------- profile dropdown ---------------- */
+  const profileMenu = document.getElementById('profileMenu');
+  const profileTrigger = document.getElementById('profileTrigger');
+
+  if(profileTrigger){
+    profileTrigger.addEventListener('click', (e) => {
+      e.stopPropagation(); // don't let the outside-click handler fire on this same click
+      profileMenu.classList.toggle('pinned');
+    });
+  }
+
+  // clicking anywhere outside the menu closes a pinned dropdown
+  document.addEventListener('click', (e) => {
+    if(profileMenu && !profileMenu.contains(e.target)){
+      profileMenu.classList.remove('pinned');
+    }
+  });
+
+  document.querySelectorAll('.theme-dot').forEach(dot => {
+    dot.addEventListener('click', (e) => {
+      e.stopPropagation();
+      applyTheme(dot.dataset.theme);
+    });
+  });
 });

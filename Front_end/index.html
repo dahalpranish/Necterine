@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ledger — Dashboard</title>
+<title>Necterine — Dashboard</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -12,7 +12,7 @@
   <div class="nav-left">
     <div class="brand">
       <div class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4 L20 18 H4 Z" fill="#06210d"/></svg></div>
-      Ledger
+      Necterine
     </div>
     <div class="nav-links">
       <a href="index.html" class="nav-link active">Dashboard</a>
@@ -21,9 +21,22 @@
     </div>
   </div>
   <div class="nav-right">
-    <span class="user-name">...</span>
-    <div class="user-avatar">A</div>
-    <button class="btn-signout" id="signOutBtn">Sign out</button>
+    <div class="profile-menu" id="profileMenu">
+      <button class="profile-trigger" id="profileTrigger">
+        <span class="user-name">...</span>
+        <div class="user-avatar">A</div>
+      </button>
+      <div class="profile-dropdown" id="profileDropdown">
+        <div class="dropdown-user user-name">...</div>
+        <div class="dropdown-label">Theme</div>
+        <div class="theme-options">
+          <button class="theme-dot" data-theme="green" style="background:#34c759" title="Green"></button>
+          <button class="theme-dot" data-theme="red" style="background:#ff5c5c" title="Red"></button>
+          <button class="theme-dot" data-theme="blue" style="background:#4aa8ea" title="Blue"></button>
+        </div>
+        <button class="dropdown-signout" id="signOutBtn">Sign out</button>
+      </div>
+    </div>
   </div>
 </nav>
 
