@@ -4,14 +4,49 @@
    ============================================================ */
 
 /**
- * Wraps fetch(): attaches Authorization header, parses JSON,
- * and auto-redirects to login on a 401.
+ * Wraps fetch(): attaches Authorization header, parses JSON.
+ * On a 401, tries /auth/refresh (uses the httponly refresh cookie) once,
+ * and if that succeeds, retries the original request with the new token.
+ * Only redirects to login.html if refresh also fails.
  * Returns { ok, status, data } — never throws for normal HTTP errors.
  */
-async function apiFetch(path, options = {}){
+
+// Shared across all callers so concurrent 401s don't fire /auth/refresh multiple times.
+let refreshInFlight = null;
+
+async function refreshAccessToken(){
+  if(!refreshInFlight){
+    refreshInFlight = (async () => {
+      try{
+        const res = await fetch(`${API_BASE}/auth/refresh`, {
+          method: 'POST',
+          credentials: 'include' // sends the httponly refresh cookie
+        });
+        if(!res.ok) return null;
+        const data = await res.json().catch(() => null);
+        if(!data?.access_token) return null;
+        setToken(data.access_token);
+        return data.access_token;
+      } catch(err){
+        return null;
+      } finally {
+        refreshInFlight = null;
+      }
+    })();
+  }
+  return refreshInFlight;
+}
+
+function goToLogin(){
+  sessionStorage.removeItem('token');
+  window.location.href = 'login.html';
+}
+
+async function apiFetch(path, options = {}, _isRetry = false){
   try{
     const res = await fetch(`${API_BASE}${path}`, {
       ...options,
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${getToken()}`,
@@ -20,9 +55,17 @@ async function apiFetch(path, options = {}){
     });
 
     if(res.status === 401){
-      sessionStorage.removeItem('token');
-      window.location.href = 'login.html';
-      return { ok: false, status: 401, data: null };
+      if(_isRetry){
+        // already retried once with a fresh token and still 401 — give up
+        goToLogin();
+        return { ok: false, status: 401, data: null };
+      }
+      const newToken = await refreshAccessToken();
+      if(!newToken){
+        goToLogin();
+        return { ok: false, status: 401, data: null };
+      }
+      return apiFetch(path, options, true); // retry once with fresh token
     }
 
     const data = await res.json().catch(() => null);

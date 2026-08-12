@@ -14,6 +14,10 @@ function getToken(){
   return sessionStorage.getItem('token');
 }
 
+function setToken(newToken){
+  sessionStorage.setItem('token', newToken);
+}
+
 /** Decodes a JWT's payload without verifying it (just reading claims client-side). */
 function parseJwt(token){
   try{
@@ -52,7 +56,8 @@ async function verifyAndLoadUser(){
 
   try{
     const res = await fetch(`${API_BASE}/auth/me`, {
-      headers: { 'Authorization': `Bearer ${getToken()}` }
+      headers: { 'Authorization': `Bearer ${getToken()}` },
+      credentials: 'include'
     });
 
     if(res.status === 401){

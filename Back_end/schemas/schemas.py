@@ -8,6 +8,7 @@ class user_data(BaseModel):
 class user_login(BaseModel):
     identifier : str
     password : str
+    remember_me: bool = False
 
 class TokenData(BaseModel):
     id: int | None = None  

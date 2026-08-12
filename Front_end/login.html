@@ -303,6 +303,22 @@
     80%{ transform: translateX(3px); }
   }
 
+  .remember-row{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 0 0;
+    font-size: 13px;
+    color: var(--muted);
+    user-select: none;
+    cursor: pointer;
+  }
+  .remember-row input{
+    width: 15px; height: 15px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
   .footnote{
     text-align: center;
     font-size: 12px;
@@ -378,6 +394,10 @@
             <div class="field-wrap">
               <input class="field" id="password" type="password" placeholder="••••••••" autocomplete="current-password">
             </div>
+            <label class="remember-row" for="rememberMe">
+              <input type="checkbox" id="rememberMe">
+              Remember me
+            </label>
             <button type="submit" class="btn" id="loginSubmitBtn">Sign in</button>
           </div>
         </div>
@@ -504,10 +524,13 @@ loginForm.addEventListener('submit', async (e)=>{
   btn.innerHTML = '<span class="spinner"></span>Signing in...';
 
   try{
+    const remember_me = document.getElementById('rememberMe').checked;
+
     const res = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ identifier, password })
+      credentials: 'include', // required: browser must store the httponly refresh cookie
+      body: JSON.stringify({ identifier, password, remember_me })
     });
 
     const data = await res.json().catch(()=> ({}));
