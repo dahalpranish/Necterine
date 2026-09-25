@@ -47,7 +47,7 @@ def read_current_user(current_user_token = Depends(get_current_user), db: Sessio
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"user_name": user.user_name, "user_email": user.user_email}
 
-@router.post("/refresh", status_code=status.HTTP_200_OK)
+@router.post("/refresh", status_code=status.HTTP_200_OK,tags=["login_authentication"])
 def refresh(request: Request, response: Response, db: Session = Depends(get_db)):
     old_refresh = request.cookies.get(token.REFRESH_COOKIE_NAME)
     if not old_refresh:

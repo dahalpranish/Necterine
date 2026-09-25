@@ -60,8 +60,8 @@ def set_refresh_cookie(response: Response, refresh_token: str, remember_me: bool
         key=REFRESH_COOKIE_NAME,
         value=refresh_token,
         httponly=True,       # not accessible to JS — mitigates XSS token theft
-        secure=True,         # only sent over HTTPS (use False only in local dev over http)
-        samesite="lax",      # CSRF mitigation; use "strict" for tighter security
+        secure=False,         # only sent over HTTPS (use False only in local dev over http)
+        samesite=None,      # CSRF mitigation; use "strict" for tighter security
         max_age=days * 24 * 60 * 60,
         path="/",             # scope cookie to whole app (or narrow to /refresh, /logout)
     )

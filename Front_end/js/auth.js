@@ -18,6 +18,38 @@ function setToken(newToken){
   sessionStorage.setItem('token', newToken);
 }
 
+// Shared across all callers (guard + apiFetch) so concurrent 401s / page-load
+// checks don't fire /auth/refresh more than once at a time.
+let refreshInFlight = null;
+
+async function refreshAccessToken(){
+  if(!refreshInFlight){
+    refreshInFlight = (async () => {
+      try{
+        const res = await fetch(`${API_BASE}/auth/refresh`, {
+          method: 'POST',
+          credentials: 'include' // sends the httponly refresh cookie
+        });
+        if(!res.ok) return null;
+        const data = await res.json().catch(() => null);
+        if(!data?.access_token) return null;
+        setToken(data.access_token);
+        return data.access_token;
+      } catch(err){
+        return null;
+      } finally {
+        refreshInFlight = null;
+      }
+    })();
+  }
+  return refreshInFlight;
+}
+
+function goToLogin(){
+  sessionStorage.removeItem('token');
+  window.location.href = 'login.html';
+}
+
 /** Decodes a JWT's payload without verifying it (just reading claims client-side). */
 function parseJwt(token){
   try{
@@ -38,13 +70,23 @@ function applyDisplayName(name){
   document.querySelectorAll('.user-avatar').forEach(el => el.textContent = name.charAt(0).toUpperCase());
 }
 
-/* Runs immediately (not waiting for DOMContentLoaded) so a logged-out
-   user never even sees the page flash before redirecting. */
-(function guard(){
+/* Runs immediately (not waiting for DOMContentLoaded). Hides the page while
+   it decides: sessionStorage token has died (tab/browser closed, "remember me"
+   case) but a valid httponly refresh cookie may still exist — try that before
+   giving up and sending the user to login.html. */
+document.documentElement.style.visibility = 'hidden';
+
+async function guard(){
   if(!getToken()){
-    window.location.href = 'login.html';
+    const newToken = await refreshAccessToken();
+    if(!newToken){
+      goToLogin();
+      return;
+    }
   }
-})();
+  document.documentElement.style.visibility = 'visible';
+}
+const authReady = guard();
 
 async function verifyAndLoadUser(){
   // Immediate fallback: read the username straight off the JWT's own claims
@@ -89,7 +131,8 @@ function applyTheme(theme){
   localStorage.setItem('theme', theme);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await authReady; // make sure a refreshed token (if any) is in place first
   verifyAndLoadUser();
 
   const btn = document.getElementById('signOutBtn');
